@@ -49,6 +49,7 @@ def eval():
     if launch:
         progress_bar = st.progress(0)
         fig = plt.figure()
+        plt.style.use('bmh')
         ax = fig.add_subplot(1,1,1)
         ax.set_ylim(0, 1)
         plot_bar = plt.bar(classes, model.predict_proba(df.iloc[[0]])[0,:])
