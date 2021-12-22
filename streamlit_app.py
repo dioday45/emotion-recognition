@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from matplotlib import animation
+from pathlib2 import Path
 
 def main():
     st.title("Emotion recognition evaluation")
@@ -24,14 +25,20 @@ def main():
 
     return None
 
+def read_markdown_file(markdown_file):
+        return Path(markdown_file).read_text()
+
 def main_page():
-    st.markdown("### TODO")
+    intro_markdown = read_markdown_file("markdown_files/main_page.md")
+    st.markdown(intro_markdown, unsafe_allow_html=True)
+
 
 
 
 def eval():
     st.subheader("Real-time evaluation simulation")
 
+ 
     model_selection = st.selectbox('Select model', {'Random Forest', 'LightGBM'})
 
     if model_selection == 'Random Forest' :
@@ -41,12 +48,15 @@ def eval():
     
     participant_selection = st.selectbox('Select participant', ('Participant 1', 'Participant 2', 'Participant 3'))
 
+    st.markdown("You can start the simulation by pressing the button below.")
+
     classes = model.classes_
     df =pd.read_csv("data/data.csv") ## TODO : modify in function of selected participant
     
 
     launch = st.button('Launch simulation')    
     if launch:
+        st.info("Data is being processed, this can take some time so don't panic !")
         progress_bar = st.progress(0)
         fig = plt.figure()
         plt.style.use('bmh')
@@ -83,6 +93,17 @@ def models():
     model_selection = st.selectbox(
         'Select model',
         ('Random Forest', 'LightGBM'))
+
+    st.subheader("Confusion matrix")
+
+    if model_selection == 'Random Forest' :
+        model = pickle.load(open("Models/random_forest_model.sav", "rb"))
+        cm = st.image("confusion_matrix/rf_cm.png")
+    elif model_selection == "LightGBM":
+        model = pickle.load(open("Models/random_forest_model.sav", "rb"))
+        cm = st.image("confusion_matrix/lgb_cm.png")
+
+    st.subheader("TODO: add statistics about models")
 
 
 if __name__ == "__main__":
