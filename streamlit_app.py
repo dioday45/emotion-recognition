@@ -44,15 +44,14 @@ def eval():
     if model_selection == 'Random Forest' :
         model = pickle.load(open("Models/random_forest_model.sav", "rb"))
     elif model_selection == "LightGBM":
-        model = pickle.load(open("Models/random_forest_model.sav", "rb"))
+        model = pickle.load(open("Models/lgbm_model.sav", "rb"))
     
     participant_selection = st.selectbox('Select participant', ('Participant 1', 'Participant 2', 'Participant 3'))
 
     st.markdown("You can start the simulation by pressing the button below.")
 
     classes = model.classes_
-    df =pd.read_csv("data/data.csv") ## TODO : modify in function of selected participant
-    
+    df =pd.read_csv("data/data.csv", index_col=0) ## TODO : modify in function of selected participant    
 
     launch = st.button('Launch simulation')    
     if launch:
