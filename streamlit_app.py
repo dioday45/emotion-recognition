@@ -44,8 +44,7 @@ def eval():
     if model_selection == 'Random Forest' :
         model = pickle.load(open("Models/random_forest_model.sav", "rb"))
     elif model_selection == "LightGBM":
-        model = pickle.load(open("Models/random_forest_model.sav", "rb"))
-        #model = pickle.load(open("Models/lgbm_model.sav", "rb"))
+        model = pickle.load(open("Models/lgbm_model.sav", "rb"))
     
     participant_selection = st.selectbox('Select participant', ('Participant 1', 'Participant 2', 'Participant 3'))
 
