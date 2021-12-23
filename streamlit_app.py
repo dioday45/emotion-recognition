@@ -46,12 +46,19 @@ def eval():
     elif model_selection == "LightGBM":
         model = pickle.load(open("Models/lgbm_model.sav", "rb"))
     
-    participant_selection = st.selectbox('Select participant', ('Participant 1', 'Participant 2', 'Participant 3'))
+    participant_selection = st.selectbox('Select participant', ('Participant 1', 'Participant 2'))
+    recording_selection = st.selectbox('Select recording number', ('Recording 1', 'Recording 2'))
+
+    data_path = "data/{participant}/{recording}/data.csv".format(participant=participant_selection, recording=recording_selection)
+    truth_path = "data/{participant}/{recording}/truth.csv".format(participant=participant_selection, recording=recording_selection)
+    video_path = "data/{participant}/{recording}/video.mp4".format(participant=participant_selection, recording=recording_selection)
 
     st.markdown("You can start the simulation by pressing the button below.")
 
     classes = model.classes_
-    df =pd.read_csv("data/data.csv", index_col=0) ## TODO : modify in function of selected participant    
+
+    df = pd.read_csv(data_path, index_col=0) ## TODO : modify in function of selected participant    
+    truth = pd.read_csv(truth_path, index_col=0)["Expression"]
 
     launch = st.button('Launch simulation')    
     if launch:
@@ -64,11 +71,14 @@ def eval():
         plot_bar = plt.bar(classes, model.predict_proba(df.iloc[[0]])[0,:])
         data_len = len(df.index)
         predicted_df = model.predict_proba(df)
-        txt = ax.text(.05,.9, "test")
+        txt_pred = ax.text(.05,.9, "Predicted expression")
+        txt_truth = ax.text(.05, .8, "True expression")
+
 
         def gif_computation(idx):
             progress_bar.progress(idx/data_len)
-            txt.set_text("Predicted expression : {}".format(classes[np.argmax(predicted_df[idx,:])]))
+            txt_pred.set_text("Predicted expression : {}".format(classes[np.argmax(predicted_df[idx,:])]))
+            txt_truth.set_text("True expression : {}".format(truth[idx]))
             for rect, h in zip(plot_bar, predicted_df[idx,:]):
                 rect.set_height(h)
 
@@ -82,7 +92,7 @@ def eval():
     show_video = st.checkbox("Show participant video")
     if show_video:
         st.write("Here you can see the corresponding video")
-        st.video("data/Expression_recording023.mp4")
+        st.video(video_path)
 
 
 
