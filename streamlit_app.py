@@ -6,6 +6,7 @@ import numpy as np
 
 from matplotlib import animation
 from pathlib2 import Path
+from sklearn.metrics import plot_confusion_matrix, precision_score, recall_score, accuracy_score, f1_score
 
 def main():
     st.title("Emotion recognition evaluation")
@@ -32,13 +33,7 @@ def main_page():
     intro_markdown = read_markdown_file("markdown_files/main_page.md")
     st.markdown(intro_markdown, unsafe_allow_html=True)
 
-
-
-
-def eval():
-    st.subheader("Real-time evaluation simulation")
-
- 
+def selections():
     model_selection = st.selectbox('Select model', {'Random Forest', 'LightGBM'})
 
     if model_selection == 'Random Forest' :
@@ -52,12 +47,21 @@ def eval():
     data_path = "data/{participant}/{recording}/data.csv".format(participant=participant_selection, recording=recording_selection)
     truth_path = "data/{participant}/{recording}/truth.csv".format(participant=participant_selection, recording=recording_selection)
     video_path = "data/{participant}/{recording}/video.mp4".format(participant=participant_selection, recording=recording_selection)
+    return data_path, truth_path, video_path, model
+
+
+
+
+def eval():
+    st.subheader("Real-time evaluation simulation")
+    data_path, truth_path, video_path, model = selections()
+
 
     st.markdown("You can start the simulation by pressing the button below.")
 
     classes = model.classes_
 
-    df = pd.read_csv(data_path, index_col=0) ## TODO : modify in function of selected participant    
+    df = pd.read_csv(data_path, index_col=0)   
     truth = pd.read_csv(truth_path, index_col=0)["Expression"]
 
     launch = st.button('Launch simulation')    
@@ -98,21 +102,24 @@ def eval():
 
 
 def models():
-    st.subheader("View models")
-    model_selection = st.selectbox(
-        'Select model',
-        ('Random Forest', 'LightGBM'))
+    st.subheader("Settings selection")
+    data_path, truth_path, video_path, model = selections()
+    df = pd.read_csv(data_path, index_col=0) 
+    truth = pd.read_csv(truth_path, index_col=0)["Expression"]
+
+    st.subheader("Model metrics")
+    pred = model.predict(df)
+    st.write("Accuracy: ", accuracy_score(truth, pred).round(2))
+    st.write("Precision: ", precision_score(truth, pred, labels=model.classes_, average='macro').round(2))
+    st.write("Recall: ", recall_score(truth, pred, labels=model.classes_, average='macro').round(2))
+    st.write("F1 score: ", f1_score(truth, pred, average='macro').round(2))
 
     st.subheader("Confusion matrix")
+    plot_confusion_matrix(model, df, truth, display_labels=model.classes_, cmap='BuPu')
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    st.pyplot()
 
-    if model_selection == 'Random Forest' :
-        model = pickle.load(open("Models/random_forest_model.sav", "rb"))
-        cm = st.image("confusion_matrix/rf_cm.png")
-    elif model_selection == "LightGBM":
-        model = pickle.load(open("Models/random_forest_model.sav", "rb"))
-        cm = st.image("confusion_matrix/lgb_cm.png")
-
-    st.subheader("TODO: add statistics about models")
+    
 
 
 if __name__ == "__main__":
