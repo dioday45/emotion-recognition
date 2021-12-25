@@ -19,21 +19,25 @@ def main():
         main_page()
 
     elif app_mode == "Real-time evaluation simulation":
-        eval()
+        eval_visu()
 
     elif app_mode == "Models overview":
-        models()
+        models_metrics() 
 
     return None
 
+
 def read_markdown_file(markdown_file):
         return Path(markdown_file).read_text()
+
 
 def main_page():
     intro_markdown = read_markdown_file("markdown_files/main_page.md")
     st.markdown(intro_markdown, unsafe_allow_html=True)
 
+
 def selections():
+    #Selection of model, participant and recording
     model_selection = st.selectbox('Select model', {'Random Forest', 'LightGBM'})
 
     if model_selection == 'Random Forest' :
@@ -44,26 +48,32 @@ def selections():
     participant_selection = st.selectbox('Select participant', ('Participant 1', 'Participant 2'))
     recording_selection = st.selectbox('Select recording number', ('Recording 1', 'Recording 2'))
 
+    #Get data paths from data folder
     data_path = "data/{participant}/{recording}/data.csv".format(participant=participant_selection, recording=recording_selection)
     truth_path = "data/{participant}/{recording}/truth.csv".format(participant=participant_selection, recording=recording_selection)
     video_path = "data/{participant}/{recording}/video.mp4".format(participant=participant_selection, recording=recording_selection)
     return data_path, truth_path, video_path, model
 
 
-
-
-def eval():
-    st.subheader("Real-time evaluation simulation")
+def eval_visu():
+    st.header("Real-time evaluation simulation")
+    st.subheader("Settings selection")
     data_path, truth_path, video_path, model = selections()
 
+    #Video of the selected participant
+    st.subheader("Participant video")
+    st.write("Here you can see the corresponding video to the selected participant. The corresponding data are recorded at a frequency of 50Hz during the 25 seconds of the recording (timer in red).")
+    st.write("See below to run the model on this data.")
+    st.video(video_path)
 
-    st.markdown("You can start the simulation by pressing the button below.")
 
+    st.subheader("Simulation")
+    st.markdown("To start the simulation, press the button below.")
     classes = model.classes_
+    df = pd.read_csv(data_path, index_col=0) #raw recorded data (simulating what would be the data of a real-time implementation)
+    truth = pd.read_csv(truth_path, index_col=0)["Expression"] #True emotion of the data above
 
-    df = pd.read_csv(data_path, index_col=0)   
-    truth = pd.read_csv(truth_path, index_col=0)["Expression"]
-
+    #Iteratively run the model on all the data, and then create an animation of the plots of the predicted emotions of each rows
     launch = st.button('Launch simulation')    
     if launch:
         st.info("Data is being processed, this can take some time so don't panic !")
@@ -93,21 +103,15 @@ def eval():
         st.video("Simulations/simulation.mp4")
 
 
-    show_video = st.checkbox("Show participant video")
-    if show_video:
-        st.write("Here you can see the corresponding video")
-        st.video(video_path)
-
-
-
-
-def models():
+def models_metrics():
+    st.header("Models metrics overview")
     st.subheader("Settings selection")
     data_path, truth_path, video_path, model = selections()
     df = pd.read_csv(data_path, index_col=0) 
     truth = pd.read_csv(truth_path, index_col=0)["Expression"]
 
-    st.subheader("Model metrics")
+    st.subheader("General metrics")
+    st.markdown("You can see below some basic metrics of the model applied to the selected participant.")
     pred = model.predict(df)
     st.write("Accuracy: ", accuracy_score(truth, pred).round(2))
     st.write("Precision: ", precision_score(truth, pred, labels=model.classes_, average='macro').round(2))
