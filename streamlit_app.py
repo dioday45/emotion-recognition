@@ -6,7 +6,7 @@ import numpy as np
 
 from matplotlib import animation
 from pathlib2 import Path
-from sklearn.metrics import plot_confusion_matrix, precision_score, recall_score, accuracy_score, f1_score
+from sklearn.metrics import plot_confusion_matrix, precision_score, recall_score, accuracy_score, f1_score, confusion_matrix, ConfusionMatrixDisplay
 
 def main():
     st.title("Emotion recognition evaluation")
@@ -109,17 +109,26 @@ def models_metrics():
     data_path, truth_path, video_path, model = selections()
     df = pd.read_csv(data_path, index_col=0) 
     truth = pd.read_csv(truth_path, index_col=0)["Expression"]
+    pred = model.predict(df)
+    labels = model.classes_
+
+
+    cm = confusion_matrix(truth, pred, labels=labels)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+    accuracies = cm.diagonal()/cm.sum(axis=1)
+
+
 
     st.subheader("General metrics")
-    st.markdown("You can see below some basic metrics of the model applied to the selected participant.")
-    pred = model.predict(df)
-    st.write("Accuracy: ", accuracy_score(truth, pred).round(2))
-    st.write("Precision: ", precision_score(truth, pred, labels=model.classes_, average='macro').round(2))
-    st.write("Recall: ", recall_score(truth, pred, labels=model.classes_, average='macro').round(2))
-    st.write("F1 score: ", f1_score(truth, pred, average='macro').round(2))
+    st.markdown("You can see below the overall accuracy of the model applied to the selected participant and the accuracy of each emotion.")
+    st.write("Overall accuracy: ", accuracy_score(truth, pred).round(2))
+    i = 0
+    for lab in labels:
+        st.write(lab + ": ", accuracies[i].round(2))
+        i += 1
 
     st.subheader("Confusion matrix")
-    plot_confusion_matrix(model, df, truth, display_labels=model.classes_, cmap='BuPu')
+    disp.plot()
     st.set_option('deprecation.showPyplotGlobalUse', False)
     st.pyplot()
 
