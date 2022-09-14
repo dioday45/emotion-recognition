@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{aa4bf41b-9f45-c784-2f2d-f896b67ec263}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.Recorder.Samples.Editor", "Unity.Recorder.Samples.Editor.csproj", "{c831fa2f-9ffc-441f-adc6-4e8e3d031f35}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{aa4bf41b-9f45-c784-2f2d-f896b67ec263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{aa4bf41b-9f45-c784-2f2d-f896b67ec263}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{c831fa2f-9ffc-441f-adc6-4e8e3d031f35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{c831fa2f-9ffc-441f-adc6-4e8e3d031f35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
